@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#05090c">
 <title>AMG F1 Racing</title>
 <style>
 :root{--teal:#00d2be;--ink:#0b1216;--panel:rgba(8,16,20,.82);--line:#1f3a3a}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#05090c;color:#fff;font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#05090c;color:#fff;font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:none;overscroll-behavior:none}
+input{user-select:text;-webkit-user-select:text;touch-action:auto}
 #gl{position:fixed;inset:0;width:100%;height:100%;display:block}
 .screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(ellipse at center,rgba(5,12,16,.35),rgba(5,12,16,.8));z-index:10;padding:20px;text-align:center}
 .screen.on{display:flex}
+.screen{overflow-y:auto;justify-content:flex-start;touch-action:pan-y;padding:max(20px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left))}
+.screen>:first-child{margin-top:auto}.screen>:last-child{margin-bottom:auto}
 h1{font-size:clamp(34px,6vw,76px);font-weight:900;letter-spacing:2px;font-style:italic;text-shadow:0 4px 0 #000}
 h1 span{color:var(--teal)}
 h2{font-size:clamp(22px,3.2vw,38px);font-weight:800;text-shadow:0 3px 0 #000}
@@ -79,6 +83,70 @@ table{border-collapse:collapse;background:var(--panel);border-radius:12px;overfl
 td,th{padding:8px 16px;border-bottom:1px solid #fff2;text-align:left;font-variant-numeric:tabular-nums}
 th{background:#00d2be22;color:var(--teal)}
 tr.human td{color:var(--teal);font-weight:800}
+.nick{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.nick label{display:flex;align-items:center;gap:8px;font-size:14px;opacity:.95}
+.nick input{background:var(--panel);border:2px solid #fff3;color:#fff;border-radius:10px;padding:9px 12px;font:inherit;font-size:16px;width:170px;outline:none}
+.nick input:focus{border-color:var(--teal)}
+#res-cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.rc{background:var(--panel);border-radius:14px;padding:12px 22px;min-width:190px;border-top:4px solid var(--teal)}
+.rc .rk{font-size:44px;font-weight:900;line-height:1}.rc .rk small{font-size:18px;opacity:.7}
+.rc b{display:block;font-size:20px;margin-top:4px}.rc span{display:block;font-size:13px;opacity:.8;margin-top:2px}
+#res-lb{font-size:13px;opacity:.95}#res-lb h3{margin:0 0 4px;font-size:14px;letter-spacing:.1em;text-transform:uppercase;opacity:.8}
+#res-lb table{min-width:300px;font-size:13px}
+#touch{position:fixed;inset:0;z-index:7;display:none;pointer-events:none;touch-action:none}
+body.touch.racing #touch{display:block}
+#touch button{position:absolute;pointer-events:auto;touch-action:none;border:3px solid #fff5;background:#0b1216aa;color:#fff;font-weight:900;border-radius:22px;font-size:26px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+#touch button.on{background:#00d2beaa;border-color:#fff;color:#001a17}
+#touch .a,#t-gas,#t-brk{bottom:calc(18px + env(safe-area-inset-bottom))}
+#touch .a{width:78px;height:78px;font-size:34px}
+#t-left{left:calc(18px + env(safe-area-inset-left))}#t-right{left:calc(110px + env(safe-area-inset-left))}
+#t-gas{right:calc(18px + env(safe-area-inset-right));width:96px!important;height:120px!important;font-size:20px!important;background:#0f8f4faa!important}
+#t-gas.on{background:#25e05acc!important}
+#t-brk{right:calc(128px + env(safe-area-inset-right));width:96px!important;height:84px!important;font-size:18px!important;background:#a5222288!important}
+#t-brk.on{background:#ff3b3bcc!important}
+#touch .s{top:calc(10px + env(safe-area-inset-top));width:46px;height:40px;font-size:15px;border-radius:12px}
+#t-pause{left:50%;margin-left:-72px}#t-cam{left:50%;margin-left:-23px}#t-rst{left:50%;margin-left:26px}
+#rotate{position:fixed;inset:0;z-index:30;background:#05090cf2;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-size:20px;font-weight:800;text-align:center;padding:30px}
+#rotate i{font-size:64px;font-style:normal;display:inline-block;animation:rot 2s ease-in-out infinite}
+@keyframes rot{0%,30%{transform:rotate(0)}70%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait){body.touch.racing #rotate{display:flex}}
+.tonly{display:none}body.touch .tonly{display:block}body.touch .konly{display:none}
+.card.nokb{opacity:.45;pointer-events:none}
+@media (max-height:620px),(max-width:700px){
+  .screen{gap:12px}
+  h1{font-size:clamp(30px,9vh,56px)}
+  .big{padding:10px 32px;font-size:20px;border-width:3px}
+  .cards{gap:10px}
+  .card{min-width:150px;max-width:190px;padding:10px 12px;gap:5px;border-width:2px}
+  .card b{font-size:17px}.card small{font-size:11px}.card .icon{font-size:30px}
+  .helmet{width:52px;height:52px}.num{font-size:24px}.stat{font-size:10px}
+  .wxprev{width:90px;height:44px}
+  .opts{gap:14px}.opt,.opt button{font-size:13px}
+  .nick input{width:130px;padding:7px 9px;font-size:15px}
+  table{min-width:0;font-size:12px}td,th{padding:5px 10px}
+  .rc{min-width:130px;padding:8px 14px}.rc .rk{font-size:32px}.rc b{font-size:16px}
+  #res-cards{gap:8px}
+  #radio{top:44px;font-size:12px;padding:5px 10px}
+}
+@media (max-height:500px){
+  .screen{gap:8px;padding-top:max(10px,env(safe-area-inset-top));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+  h2{font-size:20px}
+  #wx-cards{flex-wrap:nowrap;gap:6px;max-width:100%;width:100%}#wx-cards .card{min-width:0!important;max-width:none;flex:1 1 0;padding:6px 6px}#wx-cards .card small{display:none}#wx-cards .card .icon{font-size:22px}#wx-cards .card b{font-size:14px}
+  .wxprev{width:70px;height:26px}
+  .big{padding:8px 26px;font-size:17px;box-shadow:0 4px 0 #00403a}
+  #trk-cards{flex-wrap:nowrap;overflow-x:auto;max-width:100%;justify-content:flex-start}#trk-cards .card{min-width:150px!important;flex:0 0 auto}#trk-cards .card small{font-size:10px}#trk-cards canvas{width:120px!important;height:80px!important}
+  #drv-cards{flex-wrap:nowrap;overflow-x:auto;max-width:100%}#drv-cards .card{flex:0 0 150px}
+}
+body.touch .hud .tower,body.touch .hud .who{display:none}
+body.touch .hud .tl{left:calc(14px + env(safe-area-inset-left));top:8px}
+body.touch .hud .pos{font-size:28px}body.touch .hud .pos b{font-size:40px}body.touch .hud .lap{font-size:15px;margin-top:0}
+body.touch .hud .tr{right:calc(14px + env(safe-area-inset-right));top:8px}
+body.touch .hud .tr .cur{font-size:20px}body.touch .hud .tr .t{font-size:12px}
+body.touch .hud canvas.mini{width:84px;height:84px;right:calc(14px + env(safe-area-inset-right));top:74px;bottom:auto;border-radius:10px}
+body.touch .hud .bm{bottom:96px;width:160px}
+body.touch .hud .spd{font-size:38px}body.touch .hud .u{font-size:11px}body.touch .hud .gear{font-size:30px;bottom:14px}
+body.touch .hud .msg{font-size:22px;top:26%}
+body.touch #cd .n{font-size:90px}body.touch #cd .lights i{width:30px;height:30px}
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"}}
@@ -90,12 +158,19 @@ tr.human td{color:var(--teal);font-weight:800}
 <div id="hud"></div>
 <div id="cd"><div class="lights"><i></i><i></i><i></i><i></i><i></i></div><div class="n"></div></div>
 <div id="toast"></div>
+<div id="touch">
+  <button class="a" id="t-left" data-k="l">◀</button><button class="a" id="t-right" data-k="r">▶</button>
+  <button id="t-brk" data-k="b">BRAKE</button><button id="t-gas" data-k="g">GAS</button>
+  <button class="s" id="t-pause" data-a="pause">❚❚</button><button class="s" id="t-cam" data-a="cam">CAM</button><button class="s" id="t-rst" data-a="rst">↺</button>
+</div>
+<div id="rotate"><i>📱</i><div>Rotate your phone to landscape<br><small style="opacity:.7;font-weight:600">to race</small></div></div>
 
 <div id="sc-title" class="screen on">
   <h1>AMG F1 <span>RACING</span></h1>
   <div class="sub">Mercedes-AMG Petronas · 5 circuits · 1P / 2P split-screen</div>
   <button class="big" id="btn-start">START</button>
-  <div class="keys">P1 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> throttle · left · brake · right &nbsp;|&nbsp; P2 <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><br>Camera <kbd>C</kbd>(P1) <kbd>/</kbd>(P2) · Reset <kbd>R</kbd>(P1) <kbd>.</kbd>(P2) · Mute <kbd>M</kbd> · Pause <kbd>Esc</kbd></div>
+  <div class="keys tonly" style="font-size:15px">Touch: ◀ ▶ steer · GAS / BRAKE · ❚❚ pause<br>Best in landscape · 1 player on touch</div>
+  <div class="keys konly">P1 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> throttle · left · brake · right &nbsp;|&nbsp; P2 <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd><br>Camera <kbd>C</kbd>(P1) <kbd>/</kbd>(P2) · Reset <kbd>R</kbd>(P1) <kbd>.</kbd>(P2) · Mute <kbd>M</kbd> · Pause <kbd>Esc</kbd></div>
 </div>
 
 <div id="sc-mode" class="screen">
@@ -123,6 +198,7 @@ tr.human td{color:var(--teal);font-weight:800}
   <h2>Select Weather</h2>
   <div class="cards" id="wx-cards"></div>
   <div class="opts"><div class="opt">Laps <span id="opt-laps"></span></div><div class="opt">AI Rivals <span id="opt-ai"></span></div></div>
+  <div class="nick"><label>P1 Nickname <input id="nick0" maxlength="12" placeholder="Player 1" autocomplete="off"></label><label id="nick1w">P2 Nickname <input id="nick1" maxlength="12" placeholder="Player 2" autocomplete="off"></label></div>
   <div style="display:flex;gap:14px"><button class="ghost back" data-to="sc-track">← Back</button><button class="big" id="btn-go">START RACE</button></div>
 </div>
 
@@ -134,7 +210,9 @@ tr.human td{color:var(--teal);font-weight:800}
 
 <div id="sc-result" class="screen" style="z-index:20">
   <h2>Race Results</h2>
+  <div id="res-cards"></div>
   <div id="res-table"></div>
+  <div id="res-lb"></div>
   <div style="display:flex;gap:14px"><button class="big" id="btn-again">Race Again</button><button class="ghost" id="btn-menu">Menu</button></div>
 </div>
 
@@ -177,8 +255,11 @@ const WEATHERS={
 
 /* ================= 렌더러/씬 ================= */
 const canvas=$('#gl');
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const IS_TOUCH=/[?&]touch=1/.test(location.search)||(matchMedia('(pointer:coarse)').matches&&navigator.maxTouchPoints>0);
+if(IS_TOUCH)document.body.classList.add('touch');
+let pixMax=IS_TOUCH?1.5:2;
+const renderer=new THREE.WebGLRenderer({canvas,antialias:!IS_TOUCH,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,pixMax));
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
 const pmrem=new THREE.PMREMGenerator(renderer);
@@ -188,7 +269,7 @@ const scene=new THREE.Scene();
 scene.environment=envTex;
 const hemi=new THREE.HemisphereLight(0xffffff,0x44603a,1);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffffff,2);
-sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+sun.castShadow=true;sun.shadow.mapSize.set(IS_TOUCH?1024:2048,IS_TOUCH?1024:2048);
 const SH=55;Object.assign(sun.shadow.camera,{left:-SH,right:SH,top:SH,bottom:-SH,near:1,far:400});
 sun.shadow.bias=-0.0006;sun.shadow.normalBias=.06;
 scene.add(sun,sun.target);
@@ -361,7 +442,7 @@ groundMat=new THREE.MeshStandardMaterial({vertexColors:true,map:grassTex,roughne
 function nearestBrute(x,z){let best=1e18,bi=0;for(let i=0;i<N;i++){const dx=x-P[i].x,dz=z-P[i].z,d2=dx*dx+dz*dz;if(d2<best){best=d2;bi=i}}return {d:Math.sqrt(best),i:bi}}
 // trees: spruce, leafy, bushes
 {
-  const NS=600,NL=320,NB=320;
+  const NS=IS_TOUCH?300:600,NL=IS_TOUCH?160:320,NB=IS_TOUCH?160:320;
   const fm=()=>new THREE.MeshStandardMaterial({color:0xffffff,roughness:1,flatShading:true});
   const m1=new THREE.InstancedMesh(new THREE.ConeGeometry(1,2.2,8),fm(),NS);
   const m2=new THREE.InstancedMesh(new THREE.ConeGeometry(.75,1.8,8),fm(),NS);
@@ -774,7 +855,7 @@ function lapRadio(c){
 }
 
 /* ================= 게임 상태 ================= */
-const cfg={track:0,mode:1,picks:[null,null],weather:'sunny',laps:3,ai:3};
+const cfg={names:(()=>{try{return JSON.parse(localStorage.getItem('f1names'))||['','']}catch(e){return['','']}})(),track:0,mode:1,picks:[null,null],weather:'sunny',laps:3,ai:3};
 let phase='menu',cars=[],humans=[],huds=[],cams=[],raceTime=0,cdT=0,goMsgT=0,paused=false,profile=null,resultShown=false;
 const VMAX=92,ACC=21,BRAKE=48,LAT=36;
 const keys={};
@@ -829,8 +910,12 @@ function buildWeatherScreen(){
   seg($('#opt-laps'),[2,3,5],'laps','');
   if(cfg.mode===1&&![0,3,5].includes(cfg.ai))cfg.ai=3;if(cfg.mode===2&&![0,2,4].includes(cfg.ai))cfg.ai=2;
   seg($('#opt-ai'),cfg.mode===1?[0,3,5]:[0,2,4],'ai','');
+  $('#nick1w').style.display=cfg.mode===2?'':'none';
+  [0,1].forEach(i=>{const el=$('#nick'+i);el.value=cfg.names[i]||''});
 }
+[0,1].forEach(i=>$('#nick'+i).addEventListener('input',e=>{cfg.names[i]=e.target.value;try{localStorage.setItem('f1names',JSON.stringify(cfg.names))}catch(_){}}));
 $('#btn-start').onclick=()=>{initAudio();showScreen('sc-mode')};
+if(IS_TOUCH){const c2=document.querySelector('#sc-mode .card[data-mode="2"]');c2.classList.add('nokb');c2.querySelector('small').innerHTML='Needs a keyboard<br>(desktop only)'}
 document.querySelectorAll('#sc-mode .card').forEach(b=>b.onclick=()=>{cfg.mode=+b.dataset.mode;pickIdx=0;cfg.picks=[null,null];buildDriverScreen();showScreen('sc-driver')});
 document.querySelectorAll('.back').forEach(b=>b.onclick=()=>{const to=b.dataset.to;if(to==='sc-driver'){pickIdx=cfg.mode===2?1:0;buildDriverScreen()}if(to==='sc-track')buildTrackScreen();showScreen(to)});
 $('#btn-go').onclick=()=>startRace();
@@ -873,7 +958,7 @@ function startRace(){
   if(curTrack!==cfg.track){buildTrack(cfg.track);buildMini()}
   applyWeather(cfg.weather);
   const nH=cfg.mode;
-  for(let p=0;p<nH;p++){const d=cfg.picks[p]||DRIVERS[p];const c=newCar(mercLivery(d),d.short,true,d.stat);c.p=p;c.driver=d;humans.push(c);cars.push(c)}
+  for(let p=0;p<nH;p++){const d=cfg.picks[p]||DRIVERS[p];const c=newCar(mercLivery(d),d.short,true,d.stat);c.p=p;c.driver=d;c.nick=((cfg.names[p]||'').trim().slice(0,12))||`Player ${p+1}`;humans.push(c);cars.push(c)}
   for(let a=0;a<cfg.ai;a++){const l=AI_LIV[a%AI_LIV.length];const c=newCar({...l,numColor:'#ffffff'},l.name,false,[3,3,3]);c.skill=rnd(.88,.97);c.stats.acc=rnd(.96,1.02);cars.push(c)}
   const n=cars.length;
   const order=[];
@@ -892,16 +977,16 @@ function startRace(){
       <div class="tr"><div class="t cur">0:00.000</div><div class="t best">BEST --:--.---</div><div class="t last">LAST --:--.---</div></div>
       <div class="bm"><div class="spd">0</div><div class="u">km/h</div><div class="gear">N</div><div class="rpm"><i></i></div></div>
       <canvas class="mini" width="300" height="300"></canvas>
-      <div class="who" style="border-color:#${c.driver.stripe.toString(16).padStart(6,'0')}">P${k+1} · ${c.driver.short} #${c.driver.num}</div>
+      <div class="who" style="border-color:#${c.driver.stripe.toString(16).padStart(6,'0')}">${esc(c.nick)} · ${c.driver.short} #${c.driver.num}</div>
       <div class="msg"></div>${nH===1?'<div class="tower"></div>':''}`;
     $('#hud').appendChild(el);
     huds.push({el,pos:el.querySelector('.pos b'),lap:el.querySelector('.lap b'),cur:el.querySelector('.cur'),best:el.querySelector('.best'),last:el.querySelector('.last'),spd:el.querySelector('.spd'),gear:el.querySelector('.gear'),rpm:el.querySelector('.rpm i'),mini:el.querySelector('canvas'),msg:el.querySelector('.msg'),tower:el.querySelector('.tower')});
     const cam=new THREE.PerspectiveCamera(62,1,.3,6000);cam.userData={mode:0,ang:c.psi,init:false};cams.push(cam);
   });
   radioReset();cars.forEach(c=>{c.voice=mkVoice(c.human,c.human&&nH===2?(c.p?.55:-.55):0);c.eng=c.voice});
-  $('#hud').classList.add('on');$('#divider').style.display=nH===2?'block':'none';
+  document.body.classList.add('racing');$('#hud').classList.add('on');$('#divider').style.display=nH===2?'block':'none';
   showScreen('');document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-  {const sz=nH===2?1024:2048;if(sun.shadow.mapSize.x!==sz){sun.shadow.mapSize.set(sz,sz);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}}
+  {const sz=(nH===2||IS_TOUCH)?1024:2048;if(sun.shadow.mapSize.x!==sz){sun.shadow.mapSize.set(sz,sz);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}}
   raceTime=0;cdT=0;phase='countdown';resultShown=false;paused=false;
   $('#cd').classList.add('on');cdState=-1;
   window.__game={cars,humans,cfg,get phase(){return phase}};
@@ -910,6 +995,7 @@ let cdState=-1;
 
 /* ---- 입력 ---- */
 addEventListener('keydown',e=>{
+  if(e.target&&e.target.tagName==='INPUT'){if(e.code==='Enter')e.target.blur();return}
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','Slash'].includes(e.code))e.preventDefault();
   keys[e.code]=true;
   if(e.repeat)return;
@@ -933,12 +1019,28 @@ $('#btn-menu').onclick=toMenu;
 function toMenu(){
   radioReset();
   phase='menu';paused=false;if(ac)ac.resume();stopEngines();cars.forEach(c=>scene.remove(c.group));cars=[];humans=[];
-  $('#hud').classList.remove('on');$('#divider').style.display='none';$('#cd').classList.remove('on');
+  document.body.classList.remove('racing');$('#hud').classList.remove('on');$('#divider').style.display='none';$('#cd').classList.remove('on');
   rain.visible=false;pickIdx=0;cfg.picks=[null,null];showScreen('sc-mode');setShowCars([]);
 }
+const tin={};
+{const pm=new Map(),box=$('#touch');
+  const keyAt=e=>{const el=document.elementFromPoint(e.clientX,e.clientY);const b=el&&el.closest&&el.closest('[data-k]');return b?b.dataset.k:null};
+  const sync=()=>{tin.g=tin.b=tin.l=tin.r=false;pm.forEach(k=>{if(k)tin[k]=true});box.querySelectorAll('[data-k]').forEach(b=>b.classList.toggle('on',!!tin[b.dataset.k]))};
+  box.addEventListener('pointerdown',e=>{
+    const b=e.target.closest&&e.target.closest('button');if(!b)return;e.preventDefault();
+    try{b.releasePointerCapture(e.pointerId)}catch(_){}
+    if(b.dataset.a){const a=b.dataset.a;if(a==='pause'&&(phase==='race'||phase==='countdown'))togglePause();else if(a==='cam'&&cams[0])cams[0].userData.mode=(cams[0].userData.mode+1)%3;else if(a==='rst')resetCar(humans[0]);return}
+    pm.set(e.pointerId,b.dataset.k);sync()});
+  box.addEventListener('pointermove',e=>{if(pm.has(e.pointerId)){pm.set(e.pointerId,keyAt(e));sync()}});
+  const up=e=>{if(pm.delete(e.pointerId))sync()};
+  box.addEventListener('pointerup',up);box.addEventListener('pointercancel',up);
+  box.addEventListener('contextmenu',e=>e.preventDefault());
+  addEventListener('blur',()=>{pm.clear();sync()});
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&!paused&&(phase==='race'||phase==='countdown'))togglePause()});
 function humanInput(c,dt){
   const p=c.p;let thr,brk,l,r;
-  if(cfg.mode===1){thr=keys.KeyW||keys.ArrowUp;brk=keys.KeyS||keys.ArrowDown;l=keys.KeyA||keys.ArrowLeft;r=keys.KeyD||keys.ArrowRight}
+  if(cfg.mode===1){thr=keys.KeyW||keys.ArrowUp||tin.g;brk=keys.KeyS||keys.ArrowDown||tin.b;l=keys.KeyA||keys.ArrowLeft||tin.l;r=keys.KeyD||keys.ArrowRight||tin.r}
   else if(p===0){thr=keys.KeyW;brk=keys.KeyS;l=keys.KeyA;r=keys.KeyD}
   else{thr=keys.ArrowUp;brk=keys.ArrowDown;l=keys.ArrowLeft;r=keys.ArrowRight}
   const tgt=(r?1:0)-(l?1:0);
@@ -1077,7 +1179,7 @@ function updateHud(){
     h.rpm.style.width=(typeof g==='number'?rpmOf(c.speed,g):.3)*100+'%';
     h.msg.textContent=c.finished?'🏁 FINISH!':(c.wrongWay?'⚠ WRONG WAY':'');
     drawMini(h,c);
-    if(h.tower){const arr=[...cars].sort((a,b)=>a.rank-b.rank);h.tower.innerHTML=arr.map(x=>`<div class="${x===c?'me':''}"><b>${x.rank}</b><span>${x.human?x.driver.short:x.name}</span></div>`).join('')}
+    if(h.tower){const arr=[...cars].sort((a,b)=>a.rank-b.rank);h.tower.innerHTML=arr.map(x=>`<div class="${x===c?'me':''}"><b>${x.rank}</b><span>${x.human?esc(x.nick):x.name}</span></div>`).join('')}
   });
 }
 
@@ -1096,12 +1198,25 @@ function audioUpdate(){
     updateVoice(v,c,{vol:bd>320?0:.8/Math.pow(1+d/16,1.25),pan:clamp((dx*rx+dz*rz)/d,-1,1)*.85,dop:343/(343+away)});
   }
 }
+const esc=t=>String(t).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const ord=n=>n+(['th','st','nd','rd'][(n%100-20)%10]||['th','st','nd','rd'][n%100]||'th');
 function showResult(){
   resultShown=true;
   const arr=[...cars].sort((a,b)=>b.total-a.total);
+  arr.forEach((c,i)=>c.finalPos=i+1);
   let html='<table><tr><th>Pos</th><th>Driver</th><th>Time</th><th>Best lap</th></tr>';
-  arr.forEach((c,i)=>{html+=`<tr class="${c.human?'human':''}"><td>${i+1}</td><td>${c.human?`P${c.p+1} ${c.driver.name}`:c.name}</td><td>${c.finished?fmt(c.finishTime):'-'}</td><td>${fmt(c.best)}</td></tr>`});
-  $('#res-table').innerHTML=html+'</table>';showScreen('sc-result');
+  arr.forEach((c,i)=>{html+=`<tr class="${c.human?'human':''}"><td>${i+1}</td><td>${c.human?`${esc(c.nick)} <small style="opacity:.7">${c.driver.short}</small>`:c.name}</td><td>${c.finished?fmt(c.finishTime):'-'}</td><td>${fmt(c.best)}</td></tr>`});
+  $('#res-table').innerHTML=html+'</table>';
+  // per-player cards
+  $('#res-cards').innerHTML=[...humans].sort((a,b)=>a.finalPos-b.finalPos).map(c=>`<div class="rc" style="border-color:#${c.driver.stripe.toString(16).padStart(6,'0')}"><div class="rk">${c.finalPos}<small>${ord(c.finalPos).replace(/\d+/,'')} / ${cars.length}</small></div><b>${esc(c.nick)}</b><span>${c.driver.name} #${c.driver.num}</span><span>${c.finished?'Total '+fmt(c.finishTime):'DNF'} · Best ${fmt(c.best)}</span></div>`).join('');
+  // local leaderboard per circuit/laps (best total time)
+  const key='f1lb:'+TRACKS[cfg.track].name+':'+cfg.laps;let lb=[];
+  try{lb=JSON.parse(localStorage.getItem(key))||[]}catch(e){}
+  humans.forEach(c=>{if(c.finished)lb.push({n:c.nick,t:c.finishTime,b:c.best,w:cfg.weather})});
+  lb.sort((a,b)=>a.t-b.t);lb=lb.slice(0,5);
+  try{localStorage.setItem(key,JSON.stringify(lb))}catch(e){}
+  $('#res-lb').innerHTML=lb.length?`<h3>${TRACKS[cfg.track].name} · ${cfg.laps} laps · Top times</h3><table>`+lb.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.n)}</td><td>${fmt(r.t)}</td><td>${fmt(r.b)}</td></tr>`).join('')+'</table>':'';
+  showScreen('sc-result');
 }
 const hudMini=0;
 let last=performance.now();
@@ -1109,6 +1224,13 @@ function frame(now){requestAnimationFrame(frame);tick(now)}
 function tick(now){
   let dt=clamp((now-last)/1000,0.001,1/20);last=now;
   const W=innerWidth,H=innerHeight;
+  if(phase!=='menu'&&!document.hidden){
+    const ft=Math.min(250,now-(tick.pn||now));tick.pn=now;tick.fe=(tick.fe||16.7)*.95+ft*.05;
+    if(IS_TOUCH&&now-(tick.pt||0)>1500){tick.pt=now;
+      const cur=renderer.getPixelRatio();
+      if(tick.fe>26&&cur>.7)renderer.setPixelRatio(Math.max(.7,cur-.2));
+      else if(tick.fe<18&&cur<Math.min(devicePixelRatio,pixMax)-.05)renderer.setPixelRatio(Math.min(devicePixelRatio,pixMax,cur+.1))}
+  }else tick.pn=now;
   if(renderer.domElement.width!==Math.floor(W*renderer.getPixelRatio())){renderer.setSize(W,H,false)}
   if(phase==='menu'){
     showCars.forEach(c=>{c.group.rotation.y+=dt*.5*c.group.userData.spin;c.wheels.fl.spin.rotation.x+=dt*2});

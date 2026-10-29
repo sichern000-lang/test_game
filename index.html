@@ -98,8 +98,9 @@ body.touch.racing #touch{display:block}
 #touch button{position:absolute;pointer-events:auto;touch-action:none;border:3px solid #fff5;background:#0b1216aa;color:#fff;font-weight:900;border-radius:22px;font-size:26px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 #touch button.on{background:#00d2beaa;border-color:#fff;color:#001a17}
 #touch .a,#t-gas,#t-brk{bottom:calc(18px + env(safe-area-inset-bottom))}
-#touch .a{width:78px;height:78px;font-size:34px}
-#t-left{left:calc(18px + env(safe-area-inset-left))}#t-right{left:calc(110px + env(safe-area-inset-left))}
+#touch .a{width:108px;height:108px;font-size:40px}
+#t-left{left:calc(14px + env(safe-area-inset-left))}#t-right{left:calc(122px + env(safe-area-inset-left))}
+#touch .a::before{content:'';position:absolute;inset:-60px -4px -24px -4px}
 #t-gas{right:calc(18px + env(safe-area-inset-right));width:96px!important;height:120px!important;font-size:20px!important;background:#0f8f4faa!important}
 #t-gas.on{background:#25e05acc!important}
 #t-brk{right:calc(128px + env(safe-area-inset-right));width:96px!important;height:84px!important;font-size:18px!important;background:#a5222288!important}
@@ -143,7 +144,7 @@ body.touch .hud .pos{font-size:28px}body.touch .hud .pos b{font-size:40px}body.t
 body.touch .hud .tr{right:calc(14px + env(safe-area-inset-right));top:8px}
 body.touch .hud .tr .cur{font-size:20px}body.touch .hud .tr .t{font-size:12px}
 body.touch .hud canvas.mini{width:84px;height:84px;right:calc(14px + env(safe-area-inset-right));top:74px;bottom:auto;border-radius:10px}
-body.touch .hud .bm{bottom:96px;width:160px}
+body.touch .hud .bm{bottom:128px;width:160px}
 body.touch .hud .spd{font-size:38px}body.touch .hud .u{font-size:11px}body.touch .hud .gear{font-size:30px;bottom:14px}
 body.touch .hud .msg{font-size:22px;top:26%}
 body.touch #cd .n{font-size:90px}body.touch #cd .lights i{width:30px;height:30px}
@@ -1076,7 +1077,7 @@ function stepCar(c,inp,dt){
   const top=VMAX*c.stats.top*(c.onGrass?.55:1);
   let a=0;
   if(inp.thr>0){const k=Math.max(0,1-Math.pow(Math.max(vf,0)/top,2.2));a+=ACC*c.stats.acc*k*Math.min(1,gm+.2);if(vf<-1)a+=BRAKE*.5}
-  if(inp.brk>0){if(vf>1)a-=BRAKE*Math.min(1,gm+.12);else a-=9}
+  if(inp.brk>0){if(vf>1)a-=BRAKE*Math.min(1,gm+.12);else a-=vf*12}
   if(inp.thr===0&&inp.brk===0&&Math.abs(vf)>.2)a-=Math.sign(vf)*(1.5+.05*Math.abs(vf));
   a-=.0004*vf*Math.abs(vf);
   if(c.onGrass)a-=vf*.45;
@@ -1209,13 +1210,26 @@ function showResult(){
   $('#res-table').innerHTML=html+'</table>';
   // per-player cards
   $('#res-cards').innerHTML=[...humans].sort((a,b)=>a.finalPos-b.finalPos).map(c=>`<div class="rc" style="border-color:#${c.driver.stripe.toString(16).padStart(6,'0')}"><div class="rk">${c.finalPos}<small>${ord(c.finalPos).replace(/\d+/,'')} / ${cars.length}</small></div><b>${esc(c.nick)}</b><span>${c.driver.name} #${c.driver.num}</span><span>${c.finished?'Total '+fmt(c.finishTime):'DNF'} · Best ${fmt(c.best)}</span></div>`).join('');
-  // local leaderboard per circuit/laps (best total time)
+  // local leaderboard per circuit/laps (best total time) + global board when the API is available
   const key='f1lb:'+TRACKS[cfg.track].name+':'+cfg.laps;let lb=[];
   try{lb=JSON.parse(localStorage.getItem(key))||[]}catch(e){}
   humans.forEach(c=>{if(c.finished)lb.push({n:c.nick,t:c.finishTime,b:c.best,w:cfg.weather})});
   lb.sort((a,b)=>a.t-b.t);lb=lb.slice(0,5);
   try{localStorage.setItem(key,JSON.stringify(lb))}catch(e){}
-  $('#res-lb').innerHTML=lb.length?`<h3>${TRACKS[cfg.track].name} · ${cfg.laps} laps · Top times</h3><table>`+lb.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.n)}</td><td>${fmt(r.t)}</td><td>${fmt(r.b)}</td></tr>`).join('')+'</table>':'';
+  const mine=new Set(humans.map(c=>c.nick));
+  const lbHtml=(rows,title)=>rows.length?`<h3>${title}</h3><table>`+rows.map((r,i)=>`<tr class="${mine.has(r.n)?'human':''}"><td>${i+1}</td><td>${esc(r.n)}</td><td>${fmt(r.t)}</td><td>${fmt(r.b)}</td></tr>`).join('')+'</table>':'';
+  const ttl=`${TRACKS[cfg.track].name} · ${cfg.laps} laps`;
+  $('#res-lb').innerHTML=lbHtml(lb,ttl+' · This device')+'<div id="gl-lb" style="margin-top:8px;opacity:.7">Online ranking…</div>';
+  const tr=TRACKS[cfg.track].name,laps=cfg.laps,fin=humans.filter(c=>c.finished);
+  (async()=>{
+    let top=null;
+    try{
+      for(const c of fin){const r=await fetch('/api/scores',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({track:tr,laps,nick:c.nick,time:c.finishTime,best:c.best,weather:cfg.weather})});if(r.ok)top=(await r.json()).top}
+      if(!top){const r=await fetch(`/api/scores?track=${encodeURIComponent(tr)}&laps=${laps}`);if(r.ok)top=(await r.json()).top}
+    }catch(e){}
+    const el=$('#gl-lb');if(!el)return;
+    el.style.opacity=1;el.innerHTML=top?(top.length?lbHtml(top.slice(0,10),ttl+' · Online ranking'):'<h3>Online ranking</h3>No times yet'):'<h3>Online ranking</h3><small style="opacity:.7">Unavailable (offline or not set up)</small>';
+  })();
   showScreen('sc-result');
 }
 const hudMini=0;
